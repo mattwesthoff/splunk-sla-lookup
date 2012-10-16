@@ -1,21 +1,29 @@
 #splunk scripted lookup for downtime, based on splunk's example external_lookup.py
 import csv,sys
-from utils import get_maintenance_windows
+from utils import get_maintenance_windows, is_in_xrow
 from datetime import datetime
 
 
-def lookup(time, windows):
-	return any(map(lambda window: window[0] <= datetime.fromtimestamp(time) <= window[1], windows))
+def lookup(test_name, time, windows):	
+	return any(map(lambda window: xrow_matches(test_name, window[0]) and window[1] <= datetime.fromtimestamp(time) <= window[2], windows))
+
+"""javelin.staging.zsservices.com/javelindemo03/0002dev/app/web/isalive_https"""
+def xrow_matches(test_name, xrow):
+	parts = test_name.split("/")[0:3]
+	if len(parts) != 3:
+		return False
+	parts[0] = "Stg" if is_staging(parts[0]) else "Prod"
+	return is_in_xrow(parts, xrow)
+
+def is_staging(host_name):
+	return host_name.lower().find("staging") != -1
 
 def main(windows):
     if len(sys.argv) != 4:
         print "Usage: python sla_lookup.py [event time field] [monitor name field] [is during maintenance field]"
         sys.exit(0)
 
-    time_field = sys.argv[1]
-    name_field = sys.argv[2]
-    downtime_field = sys.argv[3]
-
+    time_field, name_field, downtime_field = sys.argv[1:4]
     reader = csv.reader(sys.stdin)
     writer = None
 
@@ -41,7 +49,7 @@ def main(windows):
             writer.writerow(result)
 
         else:
-        	result[downtime_field] = lookup(int(result[time_field]), windows)
+        	result[downtime_field] = lookup(result[name_field], int(result[time_field]), windows)
         	writer.writerow(result)
 
 if __name__ == '__main__':

@@ -45,28 +45,14 @@ def get_datetime(date, time):
 	return datetime.strptime("{0} {1}".format(date, time), "%m/%d/%Y %H:%M:%S")
 		
 def get_maintenance_windows(file_name):
-	contents = filter(lambda line: len(line) > 0 and not line[0].startswith("#"), get_file_contents(file_name, columns=4))
-	windows = [[get_datetime(start_date, start_time), get_datetime(end_date, end_time)] for start_date, start_time, end_date, end_time in contents]
+	contents = filter(lambda line: len(line) > 0 and not line[0].startswith("#"), get_file_contents(file_name, columns=7))	
+	windows = [[(env, app_group, app_instance), get_datetime(start_date, start_time), get_datetime(end_date, end_time)] for env, app_group, app_instance, start_date, start_time, end_date, end_time in contents]
 	
 	for window in windows:
-		if window[0] >= window[1]:
+		if window[1] >= window[2]:
 			raise ValueError("Start {0} is greater than or equal to end {1}".format(window[0], window[1]))
 	return windows
 
-def split_interval(interval, maintenance_window):
-	if interval[0] > maintenance_window[1] or interval[1] < maintenance_window[0]:
-		return [interval]
-	if interval[1] <= maintenance_window[1] and interval[0] >= maintenance_window[0]:		
-		return []
-	result = []
-	if interval[0] < maintenance_window[0]:
-		result.append([interval[0], maintenance_window[0]])
-	if  interval[1] > maintenance_window[1]:
-		result.append([maintenance_window[1], interval[1]])
-	return result
-	
-def bound_interval(interval, boundary):
-	return [max(interval[0], boundary[0]), min(interval[1], boundary[1])]
 
 def get_xlist(file_name):
 	contents = filter(lambda line: len(line) > 0 and not line[0].startswith("#"), get_file_contents(file_name))
