@@ -2,6 +2,8 @@
 import csv,sys
 
 def main():
+	parser = OptionParser()
+	parser.add_option
     if len(sys.argv) != 4:
         print "Usage: python sla_lookup.py [event time field] [monitor name field] [is during maintenance field]"
         sys.exit(0)
@@ -27,29 +29,15 @@ def main():
             first = False
             continue
 
-        # Read the result
-        result = {}
-        i = 0
-        while i < len(header):
-            if i < len(line):
-                result[header[i]] = line[i]
-            else:
-                result[header[i]] = ''
-            i += 1
-
+        line.extend([''] * max(len(header) - len(line), 0))
+       	result = { header[i], line[i] for i in range(line) }
+        
         # Perform the lookup or reverse lookup if necessary
-        if len(result[hostf]) and len(result[ipf]):
+        if len(result[downtime_field]):
             writer.writerow(result)
 
-        elif len(result[hostf]):
-            ips = lookup(result[hostf])
-            for ip in ips:
-                result[ipf] = ip
-                writer.writerow(result)
-
-        elif len(result[ipf]):
-            result[hostf] = rlookup(result[ipf])
-            if len(result[hostf]):
-                writer.writerow(result)
+        else:
+        	result[downtime_field] = True
+        	writer.writerow(result)
 
 main()
