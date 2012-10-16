@@ -1,10 +1,13 @@
 #splunk scripted lookup for downtime, based on splunk's example external_lookup.py
 import csv,sys
+from utils import get_maintenance_windows
+from datetime import datetime
 
-def lookup():
-	return True
 
-def main():
+def lookup(time, windows):
+	return any(map(lambda window: window[0] <= datetime.fromtimestamp(time) <= window[1], windows))
+
+def main(windows):
     if len(sys.argv) != 4:
         print "Usage: python sla_lookup.py [event time field] [monitor name field] [is during maintenance field]"
         sys.exit(0)
@@ -38,8 +41,9 @@ def main():
             writer.writerow(result)
 
         else:
-        	result[downtime_field] = lookup()
+        	result[downtime_field] = lookup(int(result[time_field]), windows)
         	writer.writerow(result)
 
 if __name__ == '__main__':
-	main()
+	windows = get_maintenance_windows("maintenance_windows.txt")
+	main(windows)
