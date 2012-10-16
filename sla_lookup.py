@@ -1,9 +1,10 @@
 #splunk scripted lookup for downtime, based on splunk's example external_lookup.py
 import csv,sys
 
+def lookup():
+	return True
+
 def main():
-	parser = OptionParser()
-	parser.add_option
     if len(sys.argv) != 4:
         print "Usage: python sla_lookup.py [event time field] [monitor name field] [is during maintenance field]"
         sys.exit(0)
@@ -30,14 +31,15 @@ def main():
             continue
 
         line.extend([''] * max(len(header) - len(line), 0))
-       	result = { header[i], line[i] for i in range(line) }
+       	result = { header[i] : line[i] for i in range(len(line)) }
         
         # Perform the lookup or reverse lookup if necessary
         if len(result[downtime_field]):
             writer.writerow(result)
 
         else:
-        	result[downtime_field] = True
+        	result[downtime_field] = lookup()
         	writer.writerow(result)
 
-main()
+if __name__ == '__main__':
+	main()
