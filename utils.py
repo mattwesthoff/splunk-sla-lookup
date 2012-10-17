@@ -71,7 +71,6 @@ def is_in_xlist(row, xlist):
 	
 def is_in_xrow(row, xrow):
 	patterns = map(lambda pair: pair[0].format(re.escape(pair[1]).replace("\*", ".*")), zip(("^{0}$", "^{0}", "^{0}$"), xrow))
-	print patterns
 	return all(map(lambda pair: re.search(pair[0], pair[1], flags=re.IGNORECASE), zip(patterns, row)))
 	
 def get_app_code(app_instance):
