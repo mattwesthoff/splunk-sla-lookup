@@ -13,7 +13,7 @@ def xrow_matches(test_name, xrow):
 	if len(parts) != 3:
 		return False
 	parts[0] = "Stg" if is_staging(parts[0]) else "Prod"
-	return is_in_xrow(parts, xrow)
+	return is_in_xrow([parts[0], parts[2], parts[1]], xrow)
 
 def is_staging(host_name):
 	return host_name.lower().find("staging") != -1
