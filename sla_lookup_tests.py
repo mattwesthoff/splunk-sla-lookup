@@ -35,5 +35,17 @@ class lookupTests(unittest.TestCase):
 		test_name = "javelin.zsservices.com/Amgen/0002a/tacos"
 		self.assertTrue(lookup(test_name, event_time, windows))
 
+	def test_shouldnotmatchtestname(self):
+		windows = [[("Stg","0012","*"), datetime(2012,10,16,14,0,0), datetime(2012,10,16,17,0,0)]]
+		event_time = 1350421479
+		test_name = "javelin.zsservices.com/Amgen/0002a/tacos"
+		self.assertFalse(lookup(test_name, event_time, windows))
+
+	def test_shouldnotmatchdates(self):
+		windows = [[("*","*","*"), datetime(2012,10,14,14,0,0), datetime(2012,10,14,17,0,0)]]
+		event_time = 1350421479
+		test_name = "javelin.zsservices.com/Amgen/0002a/tacos"
+		self.assertFalse(lookup(test_name, event_time, windows))
+
 if __name__ == '__main__':
     unittest.main()
