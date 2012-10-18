@@ -1,5 +1,6 @@
 import unittest
-from sla_lookup import xrow_matches, is_staging
+from sla_lookup import xrow_matches, is_staging, lookup
+from datetime import datetime
 
 class xRowMatchesTests(unittest.TestCase):
 	def test_allwild(self):
@@ -17,7 +18,6 @@ class xRowMatchesTests(unittest.TestCase):
 	def test_allspecified(self):
 		self.assertTrue(xrow_matches("javelin.staging.zsservices.com/client/0001a", ["Stg", "0001a", "client"]))
 
-
 class isStagingTests(unittest.TestCase):
 	def test_staging(self):
 		self.assertTrue(is_staging("staging"))
@@ -27,6 +27,13 @@ class isStagingTests(unittest.TestCase):
 
 	def test_blank(self):
 		self.assertFalse(is_staging(""))
+
+class lookupTests(unittest.TestCase):
+	def test_windowmatches(self):
+		windows = [[("*","*","*"), datetime(2012,10,16,14,0,0), datetime(2012,10,16,17,0,0)]]
+		event_time = 1350421479
+		test_name = "javelin.zsservices.com/Amgen/0002a/tacos"
+		self.assertTrue(lookup(test_name, event_time, windows))
 
 if __name__ == '__main__':
     unittest.main()
