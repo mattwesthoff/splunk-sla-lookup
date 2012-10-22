@@ -43,7 +43,6 @@ def main(windows):
         line.extend([''] * max(len(header) - len(line), 0))
        	result = { header[i] : line[i] for i in range(len(line)) }
         
-        # Perform the lookup or reverse lookup if necessary
         if len(result[downtime_field]):
             writer.writerow(result)
 
